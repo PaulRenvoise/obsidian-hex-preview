@@ -1,0 +1,11 @@
+filters:
+  and:
+    - 'file.inFolder("Hex Preview examples")'
+    - 'file.ext == "md"'
+views:
+  - type: table
+    name: Hex colors
+    order:
+      - file.name
+      - note.color
+      - note.colors

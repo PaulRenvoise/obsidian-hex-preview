@@ -1,0 +1,24 @@
+.hex-preview-swatch,
+.hex-preview-base-value::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  width: 0.85em;
+  height: 0.85em;
+  margin-inline-end: 0.35em;
+  vertical-align: -0.05em;
+  border: 1px solid var(--background-modifier-border, #888);
+  border-radius: 3px;
+  background-color: #fff;
+  background-image: linear-gradient(var(--hex-preview-color), var(--hex-preview-color)),
+    conic-gradient(#bbb 25%, #fff 0 50%, #bbb 0 75%, #fff 0);
+  background-size: 100% 100%, 6px 6px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hex-preview-token { white-space: nowrap; }
+
+/* Let native text editing use the original caret geometry. */
+[contenteditable]:focus.hex-preview-base-value::before,
+[contenteditable]:focus .hex-preview-base-value::before { display: none; }

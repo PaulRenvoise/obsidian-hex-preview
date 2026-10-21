@@ -1,0 +1,26 @@
+{
+  "name": "hex-preview",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Inline hex color previews in Obsidian notes and native Bases columns.",
+  "type": "module",
+  "scripts": {
+    "dev": "node esbuild.config.mjs --watch",
+    "build": "tsc --noEmit && node esbuild.config.mjs",
+    "test": "tsx --test tests/*.test.ts"
+  },
+  "devDependencies": {
+    "@codemirror/lang-markdown": "^6.3.0",
+    "@codemirror/language": "^6.11.0",
+    "@codemirror/state": "6.7.6",
+    "@codemirror/view": "6.43.13",
+    "@lezer/common": "^1.2.3",
+    "@types/node": "^22.15.0",
+    "@types/jsdom": "^21.1.7",
+    "esbuild": "^0.25.5",
+    "jsdom": "^26.1.0",
+    "obsidian": "1.14.4",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.3"
+  }
+}
