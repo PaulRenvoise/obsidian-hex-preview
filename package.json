@@ -1,6 +1,7 @@
 {
   "name": "hex-preview",
   "version": "0.1.0",
+  "license": "MIT",
   "private": true,
   "description": "Inline hex color previews in Obsidian notes and native Bases columns.",
   "type": "module",
