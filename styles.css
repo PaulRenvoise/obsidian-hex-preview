@@ -1,5 +1,4 @@
-.hex-preview-swatch,
-.hex-preview-base-value::before {
+.hex-preview-swatch {
   content: "";
   display: inline-block;
   box-sizing: border-box;
@@ -15,10 +14,101 @@
   background-size: 100% 100%, 6px 6px;
   pointer-events: none;
   user-select: none;
+  flex-shrink: 0;
 }
+
+.hex-preview-swatch[role="button"] { cursor: pointer; pointer-events: auto; }
+.hex-preview-swatch[role="button"]:focus-visible { outline: 2px solid var(--interactive-accent); outline-offset: 2px; }
 
 .hex-preview-token { white-space: nowrap; }
 
 /* Let native text editing use the original caret geometry. */
-[contenteditable]:focus.hex-preview-base-value::before,
-[contenteditable]:focus .hex-preview-base-value::before { display: none; }
+[contenteditable]:focus > .hex-preview-swatch { display: none; }
+
+.hex-preview-popover {
+  position: fixed;
+  z-index: var(--layer-popover, 300);
+  width: 280px;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  box-shadow: var(--shadow-l);
+  font-size: var(--font-ui-small);
+}
+.hex-preview-picker-close {
+  display: block;
+  margin-inline-start: auto;
+  margin-bottom: 8px;
+  padding: 0;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.hex-preview-picker-close:hover { color: var(--text-normal); background: var(--background-modifier-hover); }
+.hex-preview-picker-value { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.hex-preview-wheel {
+  position: relative;
+  width: min(232px, 100%);
+  aspect-ratio: 1;
+  margin: 0 auto 16px;
+  user-select: none;
+}
+.hex-preview-hue-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 90deg, #f00, #f0f, #00f, #0ff, #0f0, #ff0, #f00);
+  mask-image: radial-gradient(closest-side, transparent 77.5%, #000 78.5%);
+  touch-action: none;
+  cursor: crosshair;
+}
+.hex-preview-hue-ring:focus-visible { filter: brightness(1.15); }
+.hex-preview-sv-square {
+  position: absolute;
+  left: 25%;
+  top: 25%;
+  width: 50%;
+  height: 50%;
+  background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, var(--hex-preview-hue));
+  touch-action: none;
+  cursor: crosshair;
+}
+.hex-preview-sv-square:focus-visible { outline: 2px solid var(--interactive-accent); outline-offset: 3px; }
+.hex-preview-hue-marker,
+.hex-preview-sv-marker {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #0009;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.hex-preview-hue-marker { width: 18px; height: 18px; }
+.hex-preview-picker-controls { margin: 0; padding: 0; border: 0; min-width: 0; }
+.hex-preview-picker-row { display: grid; grid-template-columns: 52px minmax(0, 1fr); align-items: center; gap: 8px; margin-bottom: 10px; }
+.hex-preview-picker-row:last-child { margin-bottom: 0; }
+.hex-preview-picker-row > span { color: var(--text-muted); }
+.hex-preview-picker-row input { width: 100%; min-width: 0; margin: 0; }
+.hex-preview-rgb { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.hex-preview-rgb input[type="number"] { width: 100%; padding-inline: 6px; text-align: center; appearance: textfield; }
+.hex-preview-rgb input::-webkit-inner-spin-button,
+.hex-preview-rgb input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+.hex-preview-hex-input { font-family: var(--font-monospace); }
+.hex-preview-picker-row input[aria-invalid="true"] { outline: 1px solid var(--text-error); }
+.hex-preview-picker-status { margin-top: 12px; color: var(--text-muted); line-height: 1.4; }
+.hex-preview-picker-status:empty { display: none; }
+.hex-preview-picker-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }

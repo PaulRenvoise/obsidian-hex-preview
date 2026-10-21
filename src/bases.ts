@@ -1,21 +1,23 @@
-import { isHex } from './hex';
+import { bindSwatch, createSwatch, isHex } from './hex';
 
 const CELL = '.bases-table-cell';
 const MARK = 'hex-preview-base-value';
 const COLOR = '--hex-preview-color';
 
-/** Decorate native cells with CSS only: never rewrite property text or editing DOM. */
-export function decorateCell(cell: HTMLElement): void {
+export type OpenBasesColor = (anchor: HTMLElement, value: HTMLElement, hex: string) => void;
+
+/** Insert empty swatch controls, keeping native text nodes and property controls intact. */
+export function decorateCell(cell: HTMLElement, open?: OpenBasesColor): void {
   const candidates = [cell, ...cell.querySelectorAll<HTMLElement>('*')];
   const desired = new Map<HTMLElement, string>();
   for (const el of candidates) {
-    if (el.matches('input, textarea, svg, button') || el.closest('a, .internal-link, .external-link, .multi-select-pill-remove-button')) continue;
+    if (el.matches('input, textarea, svg, button, .hex-preview-swatch') || el.closest('a, .internal-link, .external-link, .multi-select-pill-remove-button')) continue;
     const value = el.textContent?.trim() ?? '';
     if (!isHex(value)) continue;
     // The smallest value element avoids duplicate swatches on nested containers.
     if (Array.from(el.children).some(child => child.textContent?.trim() === value)) continue;
     const editor = el.closest('[contenteditable]');
-    if (editor?.getAttribute('contenteditable') !== 'false' && editor?.contains(el.ownerDocument.activeElement)) continue;
+    if (editor?.getAttribute('contenteditable') !== 'false' && editor?.contains(el.ownerDocument.activeElement) && !el.ownerDocument.activeElement?.matches('.hex-preview-swatch')) continue;
     desired.set(el, value);
   }
   for (const el of candidates) {
@@ -23,15 +25,24 @@ export function decorateCell(cell: HTMLElement): void {
     if (hex) {
       if (!el.classList.contains(MARK)) el.classList.add(MARK);
       if (el.style.getPropertyValue(COLOR) !== hex) el.style.setProperty(COLOR, hex);
+      const old = el.querySelector<HTMLElement>(':scope > .hex-preview-swatch');
+      if (!old || old.dataset.hex !== hex) {
+        old?.remove();
+        const swatch = createSwatch(el.ownerDocument, hex);
+        swatch.dataset.hex = hex;
+        if (open) bindSwatch(swatch, hex, () => open(swatch, el, hex));
+        el.prepend(swatch);
+      }
     } else if (el.classList.contains(MARK)) {
       el.classList.remove(MARK);
       el.style.removeProperty(COLOR);
+      el.querySelector(':scope > .hex-preview-swatch')?.remove();
     }
   }
 }
 
 /** One observer per document, including pop-out windows. Batches only changed cells. */
-export function observeBases(doc: Document): () => void {
+export function observeBases(doc: Document, open?: OpenBasesColor): () => void {
   const win = doc.defaultView!;
   const pending = new Set<HTMLElement>();
   let frame: number | null = null;
@@ -59,7 +70,7 @@ export function observeBases(doc: Document): () => void {
   function flush() {
     frame = null;
     observer.disconnect();
-    for (const cell of pending) if (cell.isConnected) decorateCell(cell);
+    for (const cell of pending) if (cell.isConnected) decorateCell(cell, open);
     pending.clear();
     observer.observe(doc.body, options);
   }
@@ -80,6 +91,7 @@ export function observeBases(doc: Document): () => void {
     doc.querySelectorAll<HTMLElement>(`.${MARK}`).forEach(el => {
       el.classList.remove(MARK);
       el.style.removeProperty(COLOR);
+      el.querySelector(':scope > .hex-preview-swatch')?.remove();
     });
   };
 }

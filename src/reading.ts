@@ -1,8 +1,8 @@
-import { createSwatch, findHex } from './hex';
+import { bindSwatch, createSwatch, findHex } from './hex';
 
 const SKIP = '.hex-preview-token, .bases-view, .metadata-container, pre, a:not(.tag), .internal-link, .external-link, script, style, textarea, input, [contenteditable="true"], .math';
 
-export function decorateReading(root: HTMLElement): void {
+export function decorateReading(root: HTMLElement, open?: (anchor: HTMLElement, hex: string) => void): void {
   if (root.closest(SKIP)) return;
   const doc = root.ownerDocument;
   const walker = doc.createTreeWalker(root, 4 /* SHOW_TEXT */);
@@ -18,7 +18,9 @@ export function decorateReading(root: HTMLElement): void {
       fragment.append(node.data.slice(offset, match.from));
       const token = doc.createElement('span');
       token.className = 'hex-preview-token';
-      token.append(createSwatch(doc, match.hex), doc.createTextNode(match.hex));
+      const swatch = createSwatch(doc, match.hex);
+      if (open) bindSwatch(swatch, match.hex, () => open(swatch, match.hex));
+      token.append(swatch, doc.createTextNode(match.hex));
       fragment.append(token);
       offset = match.to;
     }

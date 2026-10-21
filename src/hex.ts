@@ -24,3 +24,22 @@ export function createSwatch(doc: Document, hex: string): HTMLElement {
   swatch.title = hex;
   return swatch;
 }
+
+export function bindSwatch(swatch: HTMLElement, hex: string, open: () => void): void {
+  swatch.removeAttribute('aria-hidden');
+  swatch.setAttribute('role', 'button');
+  swatch.setAttribute('tabindex', '0');
+  swatch.setAttribute('contenteditable', 'false');
+  swatch.setAttribute('aria-label', `Edit color ${hex}`);
+  swatch.setAttribute('aria-haspopup', 'dialog');
+  swatch.title = `Edit ${hex}`;
+  // Capture before native Bases editors, tags or CodeMirror handle the pointer.
+  swatch.addEventListener('pointerdown', event => { event.preventDefault(); event.stopPropagation(); }, true);
+  swatch.addEventListener('mousedown', event => { event.preventDefault(); event.stopPropagation(); }, true);
+  swatch.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); open(); }, true);
+  swatch.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault(); event.stopPropagation(); open();
+    }
+  });
+}

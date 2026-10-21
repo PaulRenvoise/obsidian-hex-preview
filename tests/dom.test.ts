@@ -50,7 +50,7 @@ test('Bases observer handles new rows, text mutations, and teardown', async () =
   await new Promise(resolve => window.setTimeout(resolve, 50));
   assert.equal(root.querySelectorAll(mark).length, 1);
   const cell = root.firstElementChild as HTMLElement;
-  cell.firstChild!.textContent = '#00ff0080';
+  cell.lastChild!.textContent = '#00ff0080';
   await new Promise(resolve => window.setTimeout(resolve, 50));
   assert.equal(cell.style.getPropertyValue('--hex-preview-color'), '#00ff0080');
   cleanup();
