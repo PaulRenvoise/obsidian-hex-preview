@@ -81,6 +81,8 @@ Inspired by [obsidian-color-preview](https://github.com/stephanteig/obsidian-col
 
 Update `manifest.json`, `package.json`, and `versions.json`, commit the changes, and push a matching `x.y.z` tag. The Release workflow installs locked dependencies, runs lint checks and tests, builds the plugin, generates GitHub artifact attestations, and publishes only the three files used by Obsidian: `main.js`, `manifest.json`, and `styles.css`. The MIT license remains in this repository.
 
+Dependency installation and build commands run in a job with read-only repository access and no signing permissions. A separate job on a fresh runner downloads the exact artifact ID produced by that workflow run, rejects digest mismatches, and validates the three release files before signing and publishing them. This privileged job does not check out repository code, install dependencies, or execute the downloaded plugin. Actions are pinned to full commit hashes. This isolates publishing credentials from build dependencies; attestations prove provenance, not that the plugin or its dependencies are vulnerability-free.
+
 For an existing release, run the workflow manually with its tag from a ref containing the same build inputs. It rebuilds the plugin and compares all three files byte for byte with the published assets before attesting them. It refuses mismatches and never overwrites an existing asset.
 
 After downloading a release asset, verify its build provenance with the GitHub CLI:
