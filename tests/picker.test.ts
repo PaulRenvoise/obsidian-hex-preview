@@ -183,3 +183,45 @@ test('Bases swatch opens without triggering native text editing or losing its te
   assert.equal(cell.textContent, '#aabbcc');
   dom.window.close();
 });
+
+
+test('opacity percentage, slider and Hexa keep alpha and wheel transparency synchronized', async () => {
+  const { dom, doc, anchor, picker } = setup();
+  const writes: string[] = [];
+  picker.open({ anchor, hex: '#0080FF', apply: hex => { writes.push(hex); } });
+  const input = (label: string) => doc.querySelector<HTMLInputElement>(`[aria-label="${label}"]`)!;
+  const edit = (label: string, value: string) => {
+    input(label).value = value; input(label).dispatchEvent(new dom.window.Event('input'));
+  };
+  const wheel = doc.querySelector<HTMLElement>('.hex-preview-wheel')!;
+  const apply = doc.querySelector<HTMLButtonElement>('.mod-cta')!;
+  assert.equal(input('Opacity percent').value, '100');
+  assert.equal(input('Opacity').style.getPropertyValue('--hex-preview-opacity-color'), '0, 128, 255');
+  edit('Opacity percent', '50');
+  assert.equal(input('Opacity').value, '128');
+  assert.equal(input('Hexa').value, '#0080FF80');
+  assert.equal(Number(wheel.style.getPropertyValue('--hex-preview-alpha')), 128 / 255);
+  for (const invalid of ['', '-1', '101', '1.5']) {
+    edit('Opacity percent', invalid);
+    assert.equal(apply.disabled, true);
+    assert.equal(input('Opacity').value, '128');
+  }
+  edit('Opacity', '0');
+  assert.equal(input('Opacity percent').value, '0');
+  assert.equal(apply.disabled, false);
+  assert.equal(wheel.style.getPropertyValue('--hex-preview-alpha'), '0');
+  edit('Opacity percent', '100');
+  assert.equal(input('Opacity').value, '255');
+  assert.equal(wheel.style.getPropertyValue('--hex-preview-alpha'), '1');
+  edit('Hexa', '#FF000040');
+  assert.equal(input('Opacity percent').value, '25');
+  assert.equal(input('Opacity').value, '64');
+  assert.equal(Number(wheel.style.getPropertyValue('--hex-preview-alpha')), 64 / 255);
+  assert.equal(input('Opacity').style.getPropertyValue('--hex-preview-opacity-color'), '255, 0, 0');
+  edit('Green', '128');
+  assert.equal(input('Opacity').style.getPropertyValue('--hex-preview-opacity-color'), '255, 128, 0');
+  assert.equal(input('Opacity').value, '64', 'RGB edits preserve exact alpha, not rounded percentage');
+  apply.click(); await Promise.resolve();
+  assert.deepEqual(writes, ['#FF800040']);
+  dom.window.close();
+});

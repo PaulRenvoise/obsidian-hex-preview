@@ -71,14 +71,33 @@ export class ColorPicker {
       else input.setAttribute('aria-invalid', 'true');
       apply.disabled = busy || !target.apply || !valid;
     };
-    const opacityRow = controls.appendChild(doc.createElement('label'));
+    const opacityRow = controls.appendChild(doc.createElement('div'));
     opacityRow.className = 'hex-preview-picker-row';
+    opacityRow.setAttribute('role', 'group'); opacityRow.setAttribute('aria-label', 'Opacity controls');
     const opacityLabel = opacityRow.appendChild(doc.createElement('span'));
     opacityLabel.textContent = 'Opacity';
-    const opacity = opacityRow.appendChild(doc.createElement('input'));
+    const opacityControls = opacityRow.appendChild(doc.createElement('div'));
+    opacityControls.className = 'hex-preview-opacity';
+    const opacity = opacityControls.appendChild(doc.createElement('input'));
+    opacity.className = 'hex-preview-opacity-slider';
     opacity.type = 'range'; opacity.min = '0'; opacity.max = '255'; opacity.step = '1';
     opacity.setAttribute('aria-label', 'Opacity');
     listen(opacity, 'input', () => { alpha = Number(opacity.value); render(); });
+    const percentage = opacityControls.appendChild(doc.createElement('label'));
+    percentage.className = 'hex-preview-opacity-percentage';
+    const opacityInput = percentage.appendChild(doc.createElement('input'));
+    opacityInput.type = 'number'; opacityInput.min = '0'; opacityInput.max = '100'; opacityInput.step = '1';
+    opacityInput.setAttribute('aria-label', 'Opacity percent');
+    const percentSign = percentage.appendChild(doc.createElement('span'));
+    percentSign.textContent = '%'; percentSign.setAttribute('aria-hidden', 'true');
+    listen(opacityInput, 'input', () => {
+      const value = opacityInput.valueAsNumber;
+      const valid = opacityInput.value !== '' && Number.isInteger(value) && value >= 0 && value <= 100;
+      validate(opacityInput, valid);
+      if (!valid) return;
+      alpha = Math.round(value / 100 * 255); render(opacityInput);
+    });
+    listen(opacityInput, 'blur', () => { if (invalidInput !== opacityInput) render(); });
     const rgbRow = controls.appendChild(doc.createElement('div'));
     rgbRow.className = 'hex-preview-picker-row';
     rgbRow.setAttribute('role', 'group'); rgbRow.setAttribute('aria-label', 'RGB');
@@ -162,6 +181,9 @@ export class ColorPicker {
       square.setAttribute('aria-valuetext', `Saturation ${Math.round(hsv.s * 100)} percent, value ${Math.round(hsv.v * 100)} percent`);
       opacity.value = String(alpha);
       opacity.setAttribute('aria-valuetext', `${Math.round(alpha / 255 * 100)} percent`);
+      if (origin !== opacityInput) opacityInput.value = String(Math.round(alpha / 255 * 100));
+      opacity.style.setProperty('--hex-preview-opacity-color', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+      wheel.style.setProperty('--hex-preview-alpha', String(alpha / 255));
       inputs.forEach((input, i) => { if (input !== origin) input.value = String([rgb.r, rgb.g, rgb.b][i]); });
       apply.disabled = busy || !target.apply || invalidInput !== null;
     }
