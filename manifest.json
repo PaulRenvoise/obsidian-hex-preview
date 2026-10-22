@@ -1,7 +1,7 @@
 {
   "id": "hex-preview",
   "name": "Hex Preview",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "minAppVersion": "1.10.0",
   "description": "Preview six- and eight-digit hex colors in notes and native Bases table columns.",
   "author": "Paul Renvoise",
