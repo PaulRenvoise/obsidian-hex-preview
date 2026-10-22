@@ -60,15 +60,18 @@ Keep **File name** visible when editing colors in Bases so the picker can identi
 
 ## Development
 
-Use a recent Node.js LTS release and pnpm.
+Use Node.js 24 and pnpm 11.25.0, matching the release workflow.
 
 ```sh
 pnpm install
+pnpm lint
 pnpm test
 pnpm build
 ```
 
 `pnpm dev` watches source changes and rebuilds `main.js`. `pnpm build` type-checks and produces the installable folder in `dist/`. CodeMirror and Obsidian are provided by the host app and excluded from the bundle.
+
+`pnpm lint` enforces the Obsidian DOM-helper rule and the TypeScript/JavaScript rules reported by the community review. The release workflow runs these checks before testing and building.
 
 The tests cover matching boundaries, editor syntax exclusions, preservation of native Bases nodes/text, list values, focus behavior, recycled cells, dynamic rows, cleanup, RGB conversions, alpha preservation, picker interactions, duplicate occurrences, and protection against stale edits.
 
@@ -76,7 +79,7 @@ Inspired by [obsidian-color-preview](https://github.com/stephanteig/obsidian-col
 
 ## Releases and provenance
 
-Update `manifest.json`, `package.json`, and `versions.json`, commit the changes, and push a matching `x.y.z` tag. The Release workflow installs locked dependencies, runs tests, builds the plugin, generates GitHub artifact attestations, and publishes only the three files used by Obsidian: `main.js`, `manifest.json`, and `styles.css`. The MIT license remains in this repository.
+Update `manifest.json`, `package.json`, and `versions.json`, commit the changes, and push a matching `x.y.z` tag. The Release workflow installs locked dependencies, runs lint checks and tests, builds the plugin, generates GitHub artifact attestations, and publishes only the three files used by Obsidian: `main.js`, `manifest.json`, and `styles.css`. The MIT license remains in this repository.
 
 For an existing release, run the workflow manually with its tag from a ref containing the same build inputs. It rebuilds the plugin and compares all three files byte for byte with the published assets before attesting them. It refuses mismatches and never overwrites an existing asset.
 

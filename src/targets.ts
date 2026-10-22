@@ -54,7 +54,7 @@ export function basesTarget(app: App, anchor: HTMLElement, value: HTMLElement, h
   try { replaceProperty(current, snapshot, index, hex, hex); }
   catch { return unavailable('The property changed. Close and reopen the picker.'); }
   return { anchor, hex, apply: async next => {
-    await app.fileManager.processFrontMatter(file, data => {
+    await app.fileManager.processFrontMatter(file, (data: Record<string, unknown>) => {
       data[key] = replaceProperty(data[key], snapshot, index, hex, next);
     });
   } };

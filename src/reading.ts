@@ -12,16 +12,15 @@ export function decorateReading(root: HTMLElement, open?: (anchor: HTMLElement, 
     if (!node.parentElement?.closest(SKIP) && findHex(node.data).length) nodes.push(node);
   }
   for (const node of nodes) {
-    const fragment = doc.createDocumentFragment();
+    const fragment = doc.adoptNode(createFragment());
     let offset = 0;
     for (const match of findHex(node.data)) {
       fragment.append(node.data.slice(offset, match.from));
-      const token = doc.createElement('span');
+      const token = fragment.createSpan();
       token.className = 'hex-preview-token';
       const swatch = createSwatch(doc, match.hex);
       if (open) bindSwatch(swatch, match.hex, () => open(swatch, match.hex));
       token.append(swatch, doc.createTextNode(match.hex));
-      fragment.append(token);
       offset = match.to;
     }
     fragment.append(node.data.slice(offset));

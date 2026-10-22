@@ -4,6 +4,7 @@ import { EditorState, StateField } from '@codemirror/state';
 import { markdown } from '@codemirror/lang-markdown';
 import { EditorView } from '@codemirror/view';
 import { JSDOM } from 'jsdom';
+import { installObsidianDom } from './obsidian-dom';
 import { buildDecorations, createHexEditorExtension } from '../src/editor';
 import type { ColorTarget } from '../src/picker';
 
@@ -24,6 +25,7 @@ test('editor checks full token boundaries at viewport edges without duplicate wi
 
 test('a real CodeMirror swatch edits only the clicked occurrence and rejects a stale target', () => {
   const dom = new JSDOM('<div id="editor"></div>', { pretendToBeVisual: true });
+  installObsidianDom(dom);
   const globals = ['window', 'document', 'MutationObserver'] as const;
   const previous = globals.map(key => Object.getOwnPropertyDescriptor(globalThis, key));
   for (const key of globals) Object.defineProperty(globalThis, key, { configurable: true, value: key === 'window' ? dom.window : dom.window[key] });

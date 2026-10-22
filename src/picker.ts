@@ -27,37 +27,37 @@ export class ColorPicker {
       el.addEventListener(event, handler, capture);
       listeners.push(() => el.removeEventListener(event, handler, capture));
     };
-    const popover = doc.createElement('div');
+    const popover = doc.adoptNode(createDiv());
     popover.className = 'hex-preview-popover';
     popover.setAttribute('role', 'dialog');
     popover.setAttribute('aria-label', 'Edit hex color');
-    const dismiss = popover.appendChild(doc.createElement('button'));
+    const dismiss = popover.createEl('button');
     dismiss.type = 'button'; dismiss.className = 'hex-preview-picker-close';
     dismiss.textContent = '×';
     dismiss.setAttribute('aria-label', 'Close color picker');
     dismiss.title = 'Close';
-    const value = popover.appendChild(doc.createElement('output'));
+    const value = popover.createEl('output');
     value.className = 'hex-preview-picker-value';
     value.setAttribute('aria-live', 'polite');
-    const wheel = popover.appendChild(doc.createElement('div'));
+    const wheel = popover.createDiv();
     wheel.className = 'hex-preview-wheel';
-    const hue = wheel.appendChild(doc.createElement('div'));
+    const hue = wheel.createDiv();
     hue.className = 'hex-preview-hue-ring';
     hue.tabIndex = 0;
     hue.setAttribute('role', 'slider');
     hue.setAttribute('aria-label', 'Hue');
     hue.setAttribute('aria-valuemin', '0'); hue.setAttribute('aria-valuemax', '359');
-    const hueMarker = wheel.appendChild(doc.createElement('div'));
+    const hueMarker = wheel.createDiv();
     hueMarker.className = 'hex-preview-hue-marker';
-    const square = wheel.appendChild(doc.createElement('div'));
+    const square = wheel.createDiv();
     square.className = 'hex-preview-sv-square';
     square.tabIndex = 0;
     square.setAttribute('role', 'slider');
     square.setAttribute('aria-label', 'Saturation and value. Left and right change saturation; up and down change value.');
     square.setAttribute('aria-valuemin', '0'); square.setAttribute('aria-valuemax', '100');
-    const squareMarker = square.appendChild(doc.createElement('div'));
+    const squareMarker = square.createDiv();
     squareMarker.className = 'hex-preview-sv-marker';
-    const controls = popover.appendChild(doc.createElement('fieldset'));
+    const controls = popover.createEl('fieldset');
     controls.className = 'hex-preview-picker-controls';
     const syncHSV = () => {
       const next = rgbToHSV(rgb);
@@ -71,24 +71,24 @@ export class ColorPicker {
       else input.setAttribute('aria-invalid', 'true');
       apply.disabled = busy || !target.apply || !valid;
     };
-    const opacityRow = controls.appendChild(doc.createElement('div'));
+    const opacityRow = controls.createDiv();
     opacityRow.className = 'hex-preview-picker-row';
     opacityRow.setAttribute('role', 'group'); opacityRow.setAttribute('aria-label', 'Opacity controls');
-    const opacityLabel = opacityRow.appendChild(doc.createElement('span'));
+    const opacityLabel = opacityRow.createSpan();
     opacityLabel.textContent = 'Opacity';
-    const opacityControls = opacityRow.appendChild(doc.createElement('div'));
+    const opacityControls = opacityRow.createDiv();
     opacityControls.className = 'hex-preview-opacity';
-    const opacity = opacityControls.appendChild(doc.createElement('input'));
+    const opacity = opacityControls.createEl('input');
     opacity.className = 'hex-preview-opacity-slider';
     opacity.type = 'range'; opacity.min = '0'; opacity.max = '255'; opacity.step = '1';
     opacity.setAttribute('aria-label', 'Opacity');
     listen(opacity, 'input', () => { alpha = Number(opacity.value); render(); });
-    const percentage = opacityControls.appendChild(doc.createElement('label'));
+    const percentage = opacityControls.createEl('label');
     percentage.className = 'hex-preview-opacity-percentage';
-    const opacityInput = percentage.appendChild(doc.createElement('input'));
+    const opacityInput = percentage.createEl('input');
     opacityInput.type = 'number'; opacityInput.min = '0'; opacityInput.max = '100'; opacityInput.step = '1';
     opacityInput.setAttribute('aria-label', 'Opacity percent');
-    const percentSign = percentage.appendChild(doc.createElement('span'));
+    const percentSign = percentage.createSpan();
     percentSign.textContent = '%'; percentSign.setAttribute('aria-hidden', 'true');
     listen(opacityInput, 'input', () => {
       const value = opacityInput.valueAsNumber;
@@ -98,15 +98,15 @@ export class ColorPicker {
       alpha = Math.round(value / 100 * 255); render(opacityInput);
     });
     listen(opacityInput, 'blur', () => { if (invalidInput !== opacityInput) render(); });
-    const rgbRow = controls.appendChild(doc.createElement('div'));
+    const rgbRow = controls.createDiv();
     rgbRow.className = 'hex-preview-picker-row';
     rgbRow.setAttribute('role', 'group'); rgbRow.setAttribute('aria-label', 'RGB');
-    const rgbLabel = rgbRow.appendChild(doc.createElement('span'));
+    const rgbLabel = rgbRow.createSpan();
     rgbLabel.textContent = 'RGB';
-    const channels = rgbRow.appendChild(doc.createElement('div'));
+    const channels = rgbRow.createDiv();
     channels.className = 'hex-preview-rgb';
     const inputs = (['r', 'g', 'b'] as const).map(channel => {
-      const input = channels.appendChild(doc.createElement('input'));
+      const input = channels.createEl('input');
       input.type = 'number'; input.min = '0'; input.max = '255'; input.step = '1';
       const name = ({ r: 'Red', g: 'Green', b: 'Blue' })[channel];
       input.setAttribute('aria-label', name); input.title = name;
@@ -121,11 +121,11 @@ export class ColorPicker {
       listen(input, 'blur', () => { if (invalidInput !== input) render(); });
       return input;
     });
-    const hexRow = controls.appendChild(doc.createElement('label'));
+    const hexRow = controls.createEl('label');
     hexRow.className = 'hex-preview-picker-row';
-    const hexLabel = hexRow.appendChild(doc.createElement('span'));
+    const hexLabel = hexRow.createSpan();
     hexLabel.textContent = 'Hexa';
-    const hexInput = hexRow.appendChild(doc.createElement('input'));
+    const hexInput = hexRow.createEl('input');
     hexInput.className = 'hex-preview-hex-input';
     hexInput.type = 'text'; hexInput.spellcheck = false;
     hexInput.setAttribute('autocapitalize', 'off');
@@ -145,13 +145,13 @@ export class ColorPicker {
       syncHSV(); render(hexInput);
     });
     listen(hexInput, 'blur', () => { if (invalidInput !== hexInput) render(); });
-    const status = popover.appendChild(doc.createElement('div'));
+    const status = popover.createDiv();
     status.className = 'hex-preview-picker-status';
     status.setAttribute('role', 'status');
     status.textContent = target.readOnlyReason ?? '';
-    const actions = popover.appendChild(doc.createElement('div'));
+    const actions = popover.createDiv();
     actions.className = 'hex-preview-picker-actions';
-    const apply = actions.appendChild(doc.createElement('button'));
+    const apply = actions.createEl('button');
     apply.type = 'button'; apply.className = 'mod-cta'; apply.textContent = 'Apply';
     const close = (restoreFocus = true) => {
       if (closed) return;
@@ -234,7 +234,7 @@ export class ColorPicker {
       if (key === 'ArrowDown') hsv.v = clamp(hsv.v - step / 100);
     });
     listen(dismiss, 'click', () => { if (!busy) close(); });
-    listen(apply, 'click', async () => {
+    const applyColor = async (): Promise<void> => {
       if (busy || apply.disabled || !target.apply) return;
       busy = true; controls.disabled = true; dismiss.disabled = true; render();
       try {
@@ -246,7 +246,8 @@ export class ColorPicker {
         status.textContent = error instanceof Error ? error.message : 'Could not update this color.';
         busy = false; controls.disabled = false; dismiss.disabled = false; render();
       }
-    });
+    };
+    listen(apply, 'click', () => { void applyColor(); });
     listen(doc, 'pointerdown', event => {
       if (!busy && !popover.contains(event.target as Node) && !anchor.contains(event.target as Node)) close(false);
     }, true);

@@ -65,13 +65,14 @@ jobs:
           # Its build inputs must be identical to the original release tag.
           git diff --exit-code "refs/tags/$RELEASE_TAG" HEAD -- \
             src tests styles.css manifest.json package.json pnpm-lock.yaml \
-            pnpm-workspace.yaml tsconfig.json esbuild.config.mjs versions.json
+            pnpm-workspace.yaml tsconfig.json esbuild.config.mjs eslint.config.mjs versions.json
 
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Test and build
+      - name: Lint, test, and build
         run: |
+          pnpm lint
           pnpm test
           pnpm build
 

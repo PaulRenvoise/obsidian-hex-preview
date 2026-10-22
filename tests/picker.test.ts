@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
+import { installObsidianDom } from './obsidian-dom';
 import { ColorPicker } from '../src/picker';
 import { decorateCell } from '../src/bases';
 
 function setup() {
   const dom = new JSDOM('<button id="anchor">Swatch</button>', { pretendToBeVisual: true });
+  installObsidianDom(dom);
   const doc = dom.window.document;
   const anchor = doc.querySelector<HTMLElement>('#anchor')!;
   const picker = new ColorPicker();
@@ -223,5 +225,39 @@ test('opacity percentage, slider and Hexa keep alpha and wheel transparency sync
   assert.equal(input('Opacity').value, '64', 'RGB edits preserve exact alpha, not rounded percentage');
   apply.click(); await Promise.resolve();
   assert.deepEqual(writes, ['#FF800040']);
+  dom.window.close();
+});
+
+
+test('picker uses the anchor document when global helpers belong to another window', () => {
+  const { dom, doc, anchor, picker } = setup();
+  const other = new JSDOM('<body></body>');
+  installObsidianDom(other);
+  picker.open({ anchor, hex: '#ABCDEF', apply: () => {} });
+  const dialog = doc.querySelector('[role="dialog"]')!;
+  assert.ok(dialog);
+  assert.equal(other.window.document.querySelector('[role="dialog"]'), null);
+  for (const el of dialog.querySelectorAll('*')) assert.equal(el.ownerDocument, doc);
+  picker.close(); dom.window.close(); other.window.close();
+});
+
+test('rejected asynchronous writes keep the picker open and allow retry', async () => {
+  const { dom, doc, anchor, picker } = setup();
+  let attempts = 0;
+  picker.open({ anchor, hex: '#000000', apply: () => {
+    attempts++;
+    return attempts === 1 ? Promise.reject(new Error('Save failed')) : Promise.resolve();
+  } });
+  const red = doc.querySelector<HTMLInputElement>('[aria-label="Red"]')!;
+  red.value = '255'; red.dispatchEvent(new dom.window.Event('input'));
+  const apply = doc.querySelector<HTMLButtonElement>('.mod-cta')!;
+  apply.click();
+  assert.equal(apply.disabled, true);
+  await Promise.resolve();
+  assert.equal(doc.querySelector('[role="status"]')!.textContent, 'Save failed');
+  assert.equal(apply.disabled, false);
+  apply.click(); await Promise.resolve();
+  assert.equal(attempts, 2);
+  assert.equal(doc.querySelector('[role="dialog"]'), null);
   dom.window.close();
 });

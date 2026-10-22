@@ -1,11 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
+import { installObsidianDom } from './obsidian-dom';
 import { decorateCell, observeBases } from '../src/bases';
 import { clearReading, decorateReading } from '../src/reading';
 
 const mark = '.hex-preview-base-value';
-function dom(html: string) { return new JSDOM(html, { pretendToBeVisual: true }); }
+function dom(html: string) {
+  const dom = new JSDOM(html, { pretendToBeVisual: true });
+  installObsidianDom(dom);
+  return dom;
+}
 
 test('Bases decorates list pills independently, preserving nodes, controls and text', () => {
   const { window } = dom('<div class="bases-table-cell"><div class="multi-select-container"><div class="multi-select-pill"><div class="multi-select-pill-content">#23264F</div><button>×</button></div><div class="multi-select-pill"><div class="multi-select-pill-content">#23264F80</div></div><div contenteditable="true" tabindex="0"></div></div></div>');
