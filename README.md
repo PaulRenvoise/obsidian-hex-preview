@@ -12,6 +12,12 @@ A small Obsidian plugin that adds inline swatches to `#RRGGBB` and `#RRGGBBAA` c
 - Native Bases text, property controls, sorting, and filtering remain intact. Swatches disappear in focused text editors.
 - Previewing never changes notes. Applying a color updates the selected hex value or Bases property entry. No network requests, settings, or custom view types.
 
+## Install from GitHub
+
+1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/PaulRenvoise/obsidian-hex-preview/releases/latest).
+2. Place all three files in `<vault>/.obsidian/plugins/hex-preview/`, replacing previous plugin files when updating.
+3. Restart Obsidian and enable **Hex Preview** under **Settings → Community plugins**.
+
 ## Install the local build
 
 1. Copy the `dist/hex-preview` folder into `<vault>/.obsidian/plugins/`.
@@ -67,3 +73,16 @@ pnpm build
 The tests cover matching boundaries, editor syntax exclusions, preservation of native Bases nodes/text, list values, focus behavior, recycled cells, dynamic rows, cleanup, RGB conversions, alpha preservation, picker interactions, duplicate occurrences, and protection against stale edits.
 
 Inspired by [obsidian-color-preview](https://github.com/stephanteig/obsidian-color-preview). This is a new implementation focused on hex previews.
+
+## Releases and provenance
+
+Update `manifest.json`, `package.json`, and `versions.json`, commit the changes, and push a matching `x.y.z` tag. The Release workflow installs locked dependencies, runs tests, builds the plugin, generates GitHub artifact attestations, and publishes only the three files used by Obsidian: `main.js`, `manifest.json`, and `styles.css`. The MIT license remains in this repository.
+
+For an existing release, run the workflow manually with its tag from a ref containing the same build inputs. It rebuilds the plugin and compares all three files byte for byte with the published assets before attesting them. It refuses mismatches and never overwrites an existing asset.
+
+After downloading a release asset, verify its build provenance with the GitHub CLI:
+
+```sh
+gh attestation verify main.js --repo PaulRenvoise/obsidian-hex-preview
+gh attestation verify styles.css --repo PaulRenvoise/obsidian-hex-preview
+```
